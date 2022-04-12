@@ -114,7 +114,7 @@ def run():
     print(f"test {f+1}:")
     t = score_tests[f]
     display_cards(t[0])
-    score_hand(t[0][:-1], t[0][-1], explain=True, debug=debug)
+    score_hand(t[0][:-1], t[0][-1], explain=debug, debug=debug)
 
   print()
   print(f"testing complete ({len(fails)} failed)")
