@@ -4,6 +4,7 @@ import itertools
 import sys
 import crib_test
 import re
+import traceback
 
 class Deck:
   def __init__(self):
@@ -279,32 +280,18 @@ def select_cards(text, cards):
   for c in cards:
     cards_reprs.append(c.rank + c.suit[0].upper())
 
-  result = []
+  result = set()
 
   for t in text_reprs:
     if t in cards_reprs:
-      result.append(cards[cards_reprs.index(t)])
+      result.add(cards[cards_reprs.index(t)])
 
-  return result
+  return list(result)
 
 if __name__ == "__main__":
   # test the program if "test" is given as a command line argument
   if len(sys.argv) > 1 and sys.argv[1] == "test":
     crib_test.run()
-
-  '''
-  cards = [Card("9", "clubs"), Card("10", "clubs"), Card("J", "clubs"), Card("Q", "clubs"), Card("K", "hearts")]
-
-  while True:
-    display_cards(cards)
-
-    text = input()
-
-    selected = select_cards(text, cards)
-
-    #print(selected)
-    display_cards(selected)
-  '''
 
   # setup a standard deck of cards
   deck = Deck()
@@ -330,8 +317,52 @@ if __name__ == "__main__":
     # deal each player a hand of 6 cards
     p1_hand, p2_hand = deck.deal_hands(2, 6)
 
-    # the crib is selected from the top two cards from each player's hand
-    crib = [p1_hand.pop(0) for i in range(2)] + [p2_hand.pop(0) for i in range(2)]
+    print(f"crib goes to player {crib_turn}.")
+    print()
+
+    # get user input from the players to select the cards they want to put in the crib
+    print("player 1 hand:")
+    display_cards(p1_hand)
+
+    while True:
+      p1_input = input("select 2 cards: ")
+
+      try:
+        p1_crib_cards = select_cards(p1_input, p1_hand)
+
+        if len(p1_crib_cards) != 2:
+          raise ValueError
+
+        break
+      except:
+        print("Invalid input")
+        continue
+    print()
+
+    print("player 2 hand:")
+    display_cards(p2_hand)
+
+    while True:
+      p2_input = input("select 2 cards: ")
+
+      try:
+        p2_crib_cards = select_cards(p2_input, p2_hand)
+
+        if len(p2_crib_cards) != 2:
+          raise ValueError
+
+        break
+      except:
+        print("Invalid input")
+        continue
+    print()
+
+    p1_hand.remove(p1_crib_cards[0])
+    p1_hand.remove(p1_crib_cards[1])
+    p2_hand.remove(p2_crib_cards[0])
+    p2_hand.remove(p2_crib_cards[1])
+
+    crib = p1_crib_cards + p2_crib_cards
 
     # the cut is a randomly drawn card from the deck
     cut = deck.draw_random_card()
