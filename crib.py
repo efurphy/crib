@@ -292,8 +292,7 @@ if __name__ == "__main__":
   if len(sys.argv) > 1 and sys.argv[1] == "test":
     crib_test.run()
 
-
-
+  '''
   cards = [Card("9", "clubs"), Card("10", "clubs"), Card("J", "clubs"), Card("Q", "clubs"), Card("K", "hearts")]
 
   while True:
@@ -305,47 +304,68 @@ if __name__ == "__main__":
 
     #print(selected)
     display_cards(selected)
+  '''
 
-
-
+  # setup a standard deck of cards
   deck = Deck()
 
+  # when a player reaches this score, they win the game
   max_score = 100
 
+  # start two players off at scores of 0
   p1_score = 0
   p2_score = 0
 
-  crib_turn = 1
+  # the first crib starts with a randomly selected player 
+  crib_turn = random.randint(1,2)
 
   while p1_score < max_score and p2_score < max_score:
     print("new turn")
     print("scores: " + str(p1_score) + ", " + str(p2_score))
+    print()
 
+    # shuffle the deck
     deck.shuffle()
 
+    # deal each player a hand of 6 cards
     p1_hand, p2_hand = deck.deal_hands(2, 6)
 
+    # the crib is selected from the top two cards from each player's hand
     crib = [p1_hand.pop(0) for i in range(2)] + [p2_hand.pop(0) for i in range(2)]
 
+    # the cut is a randomly drawn card from the deck
     cut = deck.draw_random_card()
 
-    p1_score += 0#score_hand(p1_hand, cut)
-    p2_score += 0#score_hand(p2_hand, cut)
-
+    # score each hand and the crib, displaying all cards and their scores
+    p1_hand_score = score_hand(p1_hand, cut)
+    p2_hand_score = score_hand(p2_hand, cut)
     crib_score = score_hand(crib, cut)
 
-    print("crib:")
-    display_cards(crib)
     print("cut:")
     display_cards(cut)
+    print()
 
-    print("score:", crib_score)
+    print(f"player 1 hand ({p1_hand_score}):")
+    display_cards(p1_hand)
+    print()
+
+    print(f"player 2 hand ({p2_hand_score}):")
+    display_cards(p2_hand)
+    print()
+
+    print(f"player {crib_turn} crib ({crib_score}):")
+    display_cards(crib)
+    print()
+
+    p1_score += p1_hand_score
+    p2_score += p2_hand_score
 
     if crib_turn == 1:
       p1_score += crib_score
     else:
       p2_score += crib_score
 
+    # collect all drawn cards back into the deck
     deck.collect()
 
     print("turn end")
