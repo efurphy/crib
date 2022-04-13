@@ -2,9 +2,7 @@ import math
 import random
 import itertools
 import sys
-import crib_test
 import re
-import traceback
 
 class Deck:
   def __init__(self):
@@ -87,6 +85,7 @@ class Card:
     return s
 
 # display up to 5 text representations of cards onto the terminal.
+# takes a card object or a list of card objects.
 def display_cards(cards):
   if type(cards) != list:
     cards = [cards]
@@ -97,8 +96,6 @@ def display_cards(cards):
 
   for i in range(5):
     for j,card in enumerate(cards):
-      #print(card.rank + card.suit[0].upper(), end=" ")
-
       if i == 0 or i == 4:
         print(" ", end="")
         print("-" * 5, end="")
@@ -259,6 +256,7 @@ def score_hand(hand, cut, explain=False, debug=False):
   return score
 
 # select a card or cards from a list of cards. text should be a string in the form "AS 7D" for example, which would try to find the Ace of Spades and 7 of Diamonds in the list of cards.
+# does not support selecting multiple of the same kind of car. say you wanted to select 2 aces of spades ("AS AS") this would only return 1 ace of spades if the card was present in the given list.
 # returns a new list of cards from 'cards' that were specified by 'text'
 def select_cards(text, cards):
   text = text.split()
@@ -288,7 +286,9 @@ def select_cards(text, cards):
 
   return list(result)
 
+# get user input to select n cards from a list of cards.
 def user_select_cards(prompt, n_cards, cards):
+  # keep getting user input until no error is raised (if everything is working as intended, no error would mean the user input is valid and the correct cards were returned)
   while True:
     text = input(prompt)
 
@@ -300,15 +300,21 @@ def user_select_cards(prompt, n_cards, cards):
 
       break
     except:
+      # print an error if an exception was found, then continue the while loop
       print("Invalid input")
-      continue
+      continue # i think this is redundant but w/e
 
   return selected
 
 if __name__ == "__main__":
-  # test the program if "test" is given as a command line argument
-  if len(sys.argv) > 1 and sys.argv[1] == "test":
-    crib_test.run()
+  # if any command line arguments were given, get the first one
+  if len(sys.argv) > 1:
+    arg = sys.argv[1]
+
+    # test the program
+    if arg == "test":
+      import crib_test
+      crib_test.run()
 
   # setup a standard deck of cards
   deck = Deck()
@@ -360,7 +366,7 @@ if __name__ == "__main__":
 
     crib = p1_crib_cards + p2_crib_cards
 
-    # the cut is a randomly drawn card from the deck
+    # the cut is randomly drawn from the deck
     cut = deck.draw_random_card()
 
     print("cut:")
