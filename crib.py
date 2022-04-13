@@ -288,6 +288,23 @@ def select_cards(text, cards):
 
   return list(result)
 
+def user_select_cards(prompt, n_cards, cards):
+  while True:
+    text = input(prompt)
+
+    try:
+      selected = select_cards(text, cards)
+
+      if len(selected) != n_cards:
+        raise ValueError
+
+      break
+    except:
+      print("Invalid input")
+      continue
+
+  return selected
+
 if __name__ == "__main__":
   # test the program if "test" is given as a command line argument
   if len(sys.argv) > 1 and sys.argv[1] == "test":
@@ -322,40 +339,17 @@ if __name__ == "__main__":
     print()
 
     # print each users hand and get their input to select the cards they want to put in the crib
+    n = 2
+    prompt = f"select {n} cards: "
+
     print("player 1 hand:")
     display_cards(p1_hand)
-
-    while True:
-      p1_input = input("select 2 cards: ")
-
-      try:
-        p1_crib_cards = select_cards(p1_input, p1_hand)
-
-        if len(p1_crib_cards) != 2:
-          raise ValueError
-
-        break
-      except:
-        print("Invalid input")
-        continue
+    p1_crib_cards = user_select_cards(prompt, n, p1_hand)
     print()
 
     print("player 2 hand:")
     display_cards(p2_hand)
-
-    while True:
-      p2_input = input("select 2 cards: ")
-
-      try:
-        p2_crib_cards = select_cards(p2_input, p2_hand)
-
-        if len(p2_crib_cards) != 2:
-          raise ValueError
-
-        break
-      except:
-        print("Invalid input")
-        continue
+    p2_crib_cards = user_select_cards(prompt, n, p2_hand)
     print()
 
     # remove the selected cards from each players hands and add those cards to the crib.
@@ -369,11 +363,42 @@ if __name__ == "__main__":
     # the cut is a randomly drawn card from the deck
     cut = deck.draw_random_card()
 
+    print("cut:")
+    display_cards(cut)
+    print()
 
+    # start pegging phase:
 
-    # pegging phase goes here...
+    # whoever doesnt have the crib this turn plays the first card.
+    turn = 1 if crib_turn == 2 else 2
 
+    p1_play_hand = p1_hand.copy()
+    p2_play_hand = p2_hand.copy()
 
+    # list of cards that have been played
+    played = []
+
+    n = 1
+    prompt = "play a card: "
+
+    # while at least one player still has cards left..
+    while len(p1_play_hand) > 0 or len(p2_play_hand) > 0:
+      if turn == 1:
+        display_cards(p1_play_hand)
+        play = user_select_cards(prompt, n, p1_play_hand)
+        p1_play_hand.remove(play[0])
+
+        played.append(play[0])
+
+        turn = 2
+      else:
+        display_cards(p2_play_hand)
+        play = user_select_cards(prompt, n, p2_play_hand)
+        p2_play_hand.remove(play[0])
+
+        played.append(play[0])
+
+        turn = 1
 
     # score each hand and the crib, displaying all cards and their scores
     p1_hand_score = score_hand(p1_hand, cut)
