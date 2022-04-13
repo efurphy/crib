@@ -306,6 +306,7 @@ if __name__ == "__main__":
   # the first crib starts with a randomly selected player 
   crib_turn = random.randint(1,2)
 
+  # start the game loop
   while p1_score < max_score and p2_score < max_score:
     print("new turn")
     print("scores: " + str(p1_score) + ", " + str(p2_score))
@@ -320,7 +321,7 @@ if __name__ == "__main__":
     print(f"crib goes to player {crib_turn}.")
     print()
 
-    # get user input from the players to select the cards they want to put in the crib
+    # print each users hand and get their input to select the cards they want to put in the crib
     print("player 1 hand:")
     display_cards(p1_hand)
 
@@ -357,6 +358,7 @@ if __name__ == "__main__":
         continue
     print()
 
+    # remove the selected cards from each players hands and add those cards to the crib.
     p1_hand.remove(p1_crib_cards[0])
     p1_hand.remove(p1_crib_cards[1])
     p2_hand.remove(p2_crib_cards[0])
@@ -367,11 +369,18 @@ if __name__ == "__main__":
     # the cut is a randomly drawn card from the deck
     cut = deck.draw_random_card()
 
+
+
+    # pegging phase goes here...
+
+
+
     # score each hand and the crib, displaying all cards and their scores
     p1_hand_score = score_hand(p1_hand, cut)
     p2_hand_score = score_hand(p2_hand, cut)
     crib_score = score_hand(crib, cut)
 
+    # print scores and all relevant cards.
     print("cut:")
     display_cards(cut)
     print()
@@ -388,6 +397,7 @@ if __name__ == "__main__":
     display_cards(crib)
     print()
 
+    # add calculated scores to each player's scores
     p1_score += p1_hand_score
     p2_score += p2_hand_score
 
@@ -399,11 +409,12 @@ if __name__ == "__main__":
     # collect all drawn cards back into the deck
     deck.collect()
 
+    # switch the crib over to the other player
+    crib_turn = 1 if crib_turn == 2 else 2
+
     print("turn end")
     print("scores: " + str(p1_score) + ", " + str(p2_score))
     print()
-
-    crib_turn = 1 if crib_turn == 2 else 2
 
     input("press enter to continue: ")
     print()
