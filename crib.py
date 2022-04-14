@@ -57,22 +57,32 @@ class Deck:
     return s
 
 class Card:
-  ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-  suits = ["clubs", "hearts", "spades", "diamonds"]
-  rank_words = {"A": "ace", "J": "jack", "Q": "queen", "K": "king"}
-  rank_values = {"A": 1, "J": 10, "Q": 10, "K": 10}
+  ranks = ["a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k"]
+  rank_words = {"a": "ace", "j": "jack", "j": "queen", "k": "king"}
+  rank_values = {"a": 1, "j": 10, "q": 10, "k": 10}
+  suits = ["c", "h", "s", "d"]
+  suit_words = ["clubs", "hearts", "spades", "diamonds"]
 
-  u_suits = {
-    "clubs": "♣",
-    "hearts": "♥",
-    "spades": "♠",
-    "diamonds": "♦",
-  }
+  u_suits = {"clubs": "♣", "hearts": "♥", "spades": "♠", "diamonds": "♦"}
 
   def __init__(self, rank, suit):
-    self.rank = rank
-    self.suit = suit
-    self.value = Card.rank_values[rank] if rank in Card.rank_values else int(rank)
+    rank = rank.lower()
+    if rank in self.ranks:
+      self.rank = rank
+    elif rank in self.rank_words.values():
+      self.rank = rank[0]
+    else:
+      raise ValueError
+
+    suit = suit.lower()
+    if suit in self.suits:
+      self.suit = suit
+    elif suit in self.suit_words:
+      self.suit = suit[0]
+    else:
+      raise ValueError
+
+    self.value = Card.rank_values[self.rank] if self.rank in Card.rank_values else int(self.rank)
 
   def __repr__(self):
     s = ""
@@ -81,7 +91,7 @@ class Card:
     else:
       s += self.rank
     s += " of "
-    s += self.suit.capitalize()
+    s += self.suit_words[self.suits.index(self.suit)].capitalize()
     return s
 
 # display up to 5 text representations of cards onto the terminal.
