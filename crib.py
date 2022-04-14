@@ -312,9 +312,13 @@ if __name__ == "__main__":
     arg = sys.argv[1]
 
     # test the program
-    if arg == "test":
+    if arg == "t" or arg == "test":
       import crib_test
       crib_test.run()
+    # start this script in interactive mode
+    elif arg == "i" or arg == "interactive":
+      import code
+      code.interact(local=locals())
 
   # setup a standard deck of cards
   deck = Deck()
