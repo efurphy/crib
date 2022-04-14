@@ -327,7 +327,7 @@ def select_cards(text, cards):
       if t[0] == c.rank and t[1] == c.suit[0]:
         result.add(c)
 
-  return list(result)
+  return result
 
 # get user input to select n cards from a list of cards.
 def user_select_cards(prompt, n_cards, cards):
@@ -391,7 +391,9 @@ if __name__ == "__main__":
     print(f"crib goes to player {crib_turn}.")
     print()
 
-    # print each users hand and get their input to select the cards they want to put in the crib
+    # print each users hand and get their input to select the cards they want to put in the crib, then remove the selected cards from each players hands and add those cards to the crib.
+    crib = []
+
     n = 2
     prompt = f"select {n} cards: "
 
@@ -400,18 +402,18 @@ if __name__ == "__main__":
     p1_crib_cards = user_select_cards(prompt, n, p1_hand)
     print()
 
+    for c in p1_crib_cards:
+      p1_hand.remove(c)
+      crib.append(c)
+
     print("player 2 hand:")
     display_cards(p2_hand)
     p2_crib_cards = user_select_cards(prompt, n, p2_hand)
     print()
 
-    # remove the selected cards from each players hands and add those cards to the crib.
-    p1_hand.remove(p1_crib_cards[0])
-    p1_hand.remove(p1_crib_cards[1])
-    p2_hand.remove(p2_crib_cards[0])
-    p2_hand.remove(p2_crib_cards[1])
-
-    crib = p1_crib_cards + p2_crib_cards
+    for c in p2_crib_cards:
+      p2_hand.remove(c)
+      crib.append(c)
 
     # the cut is randomly drawn from the deck
     cut = deck.draw_random()
@@ -436,22 +438,26 @@ if __name__ == "__main__":
 
     # while at least one player still has cards left..
     while len(p1_play_hand) > 0 or len(p2_play_hand) > 0:
+      print(f"player {turn}s turn:")
+
       if turn == 1:
         display_cards(p1_play_hand)
         play = user_select_cards(prompt, n, p1_play_hand)
-        p1_play_hand.remove(play[0])
-
-        played.append(play[0])
+        for c in play:
+          p1_play_hand.remove(c)
+          played.append(c)
 
         turn = 2
       else:
         display_cards(p2_play_hand)
         play = user_select_cards(prompt, n, p2_play_hand)
-        p2_play_hand.remove(play[0])
-
-        played.append(play[0])
+        for c in play:
+          p2_play_hand.remove(c)
+          played.append(c)
 
         turn = 1
+
+      print()
 
     # score each hand and the crib, displaying all cards and their scores
     p1_hand_score = score_hand(p1_hand, cut)
