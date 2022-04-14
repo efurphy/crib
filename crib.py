@@ -3,6 +3,7 @@ import random
 import itertools
 import sys
 import re
+import traceback # for debugging
 
 class Deck:
   def __init__(self):
@@ -80,6 +81,11 @@ class Card:
     # if given one argument, it should be parsed with parse_card_string to get a tuple of (rank, suit). if given two arguments, they should be rank and suit.
     if len(args) == 1:
       tup = parse_card_string(args[0])
+
+      if len(tup) != 1:
+        raise ValueError
+
+      tup = tup[0]
 
       rank = tup[0]
       suit = tup[1]
@@ -322,28 +328,18 @@ def score_hand(hand, cut, explain=False, debug=False):
   # return the final score
   return score
 
-# parse a string that is supposed to represent a card. looks for form "AS" for "ace of spades", or "10H" for "10 of hearts" for example. if this form is not found, returns ValueError
-# otherwise, returns tuple of the rank and suit
+# parse a string that is supposed to represent card(s). looks for strings like "AS" for "ace of spades", or "10H" for "10 of hearts" for example, and finds 1 or more of these matches, separated by non-word characters. like "as 10h" or "as,10d" for example. if no cards found, returns empty list.
+# otherwise, returns a list of tuples in the form [(rank, suit), ...]
 def parse_card_string(string):
-  pattern = r"^([2-9]|10|[AJQKajqk])([CHSDchsd])$"
+  pattern = r"(?:\b([2-9]|10|[AJQKajqk])([CHSDchsd])\b)+"
+  match = re.findall(pattern, string)
+  return match
 
-  match = re.search(pattern, string)
-
-  if not match:
-    raise ValueError
-
-  return (match.group(1).lower(), match.group(2).lower())
-
-# select card(s) from a list of cards. text should be a string with space-separated values that the parse_card_string function looks for, like "AS 7D" for example, which would try to find the Ace of Spades and 7 of Diamonds in the list of cards.
-# does not support selecting multiple of the same kind of card. say you wanted to select 2 aces of spades ("AS AS") this would only return 1 ace of spades if the card was present in the given list, even if multiple instances of that card were present in the list.
-# returns a new list of cards from 'cards' that were specified by 'text'
+# select card(s) from a list of cards. `text` is a string to pass to parse_card_string, cards is a list of Card objects.
+# does not support selecting multiple of the same kind of card. say you wanted to select 2 aces of spades ("as,as"). given the card 'as' was present in `cards`, this would only return 1 ace of spades, even if multiple instances of that card were present in the list.
+# returns a new list of cards from `cards` that were specified by `text`
 def select_cards(text, cards):
-  text = text.split()
-
-  text_tuples = []
-
-  for s in text:
-    text_tuples.append(parse_card_string(s))
+  text_tuples = parse_card_string(text)
 
   result = set()
 
@@ -370,7 +366,6 @@ def user_select_cards(prompt, n_cards, cards):
     except:
       # print an error if an exception was found, then continue the while loop
       print("Invalid input")
-      continue # i think this is redundant but w/e
 
   return selected
 
@@ -403,7 +398,7 @@ if __name__ == "__main__":
 
   # start the game loop
   while p1_score < max_score and p2_score < max_score:
-    print("new turn")
+    print("START TURN")
     print("scores: " + str(p1_score) + ", " + str(p2_score))
     print()
 
@@ -422,27 +417,23 @@ if __name__ == "__main__":
     n = 2
     prompt = f"select {n} cards: "
 
-    print("player 1 hand:")
-    display_cards(p1_hand)
-    p1_crib_cards = user_select_cards(prompt, n, p1_hand)
-    print()
+    for i in range(2):
+      if i == 0:
+        hand = p1_hand
+      elif i == 1:
+        hand = p2_hand
 
-    for c in p1_crib_cards:
-      p1_hand.remove(c)
-      crib.append(c)
+      print(f"player {i+1} hand:")
+      display_cards(hand)
+      crib_cards = user_select_cards(prompt, n, hand)
+      print()
 
-    print("player 2 hand:")
-    display_cards(p2_hand)
-    p2_crib_cards = user_select_cards(prompt, n, p2_hand)
-    print()
-
-    for c in p2_crib_cards:
-      p2_hand.remove(c)
-      crib.append(c)
+      for c in crib_cards:
+        hand.remove(c)
+        crib.append(c)
 
     # the cut is randomly drawn from the deck
     cut = deck.draw_random()
-
     print("cut:")
     display_cards(cut)
     print()
@@ -452,35 +443,33 @@ if __name__ == "__main__":
     # whoever doesnt have the crib this turn plays the first card.
     turn = 1 if crib_turn == 2 else 2
 
-    p1_play_hand = p1_hand.copy()
-    p2_play_hand = p2_hand.copy()
-
     # list of cards that have been played
     played = []
 
     n = 1
     prompt = "play a card: "
 
+    p1_play_hand = p1_hand.copy()
+    p2_play_hand = p2_hand.copy()
+
     # while at least one player still has cards left..
     while len(p1_play_hand) > 0 or len(p2_play_hand) > 0:
       print(f"player {turn}s turn:")
 
       if turn == 1:
-        display_cards(p1_play_hand)
-        play = user_select_cards(prompt, n, p1_play_hand)
-        for c in play:
-          p1_play_hand.remove(c)
-          played.append(c)
-
+        hand = p1_play_hand
         turn = 2
-      else:
-        display_cards(p2_play_hand)
-        play = user_select_cards(prompt, n, p2_play_hand)
-        for c in play:
-          p2_play_hand.remove(c)
-          played.append(c)
-
+      elif turn == 2:
+        hand = p2_play_hand
         turn = 1
+
+      display_cards(hand)
+
+      play = user_select_cards(prompt, n, hand)
+
+      for c in play:
+        hand.remove(c)
+        played.append(c)
 
       print()
 
@@ -521,8 +510,8 @@ if __name__ == "__main__":
     # switch the crib over to the other player
     crib_turn = 1 if crib_turn == 2 else 2
 
-    print("turn end")
     print("scores: " + str(p1_score) + ", " + str(p2_score))
+    print("END TURN")
     print()
 
     input("press enter to continue: ")
