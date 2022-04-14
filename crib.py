@@ -76,8 +76,22 @@ class Card:
 
   u_suits = {"clubs": "♣", "hearts": "♥", "spades": "♠", "diamonds": "♦"}
 
-  def __init__(self, rank, suit):
+  def __init__(self, *args):
+    # if given one argument, it should be parsed with parse_card_string to get a tuple of (rank, suit). if given two arguments, they should be rank and suit.
+    if len(args) == 1:
+      tup = parse_card_string(args[0])
+
+      rank = tup[0]
+      suit = tup[1]
+    elif len(args) == 2:
+      rank = args[0]
+      suit = args[1]
+    else:
+      raise TypeError
+
     rank = rank.lower()
+    suit = suit.lower()
+
     if rank in self.ranks:
       self.rank = rank
     elif rank in self.rank_words.values():
@@ -85,7 +99,6 @@ class Card:
     else:
       raise ValueError
 
-    suit = suit.lower()
     if suit in self.suits:
       self.suit = suit
     elif suit in self.suit_words:
