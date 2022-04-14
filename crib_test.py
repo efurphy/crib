@@ -1,8 +1,13 @@
 from crib import *
 
 def run():
-  # each score_hand test is a list in the form [list: hand, int: expected score]
-  score_tests = [
+  print("start testing...")
+
+  n_fails = 0
+
+  # test score_hand()
+  # each test is a list in the form [list: hand, int: expected score]
+  tests = [
     [
       [Card("A", "spades"), Card("2", "hearts"), Card("2", "clubs"), Card("3", "hearts"), Card("8", "spades")],
       10
@@ -99,23 +104,56 @@ def run():
 
   fails = []
 
-  for i,t in enumerate(score_tests):
-    score = score_hand(t[0][:-1], t[0][-1])
-    expected = t[1]
+  for i,t in enumerate(tests):
+    output = score_hand(t[0][:-1], t[0][-1])
+    expected = t[-1]
 
-    if score != expected:
+    if output != expected:
       print(f"test {i+1}: ", end="")
-      print(f"expected {expected} got {score}")
+      print(f"expected {expected} got {output}")
       fails.append(i)
+      n_fails += 1
 
   debug = False
 
   for f in fails:
     print(f"test {f+1}:")
-    t = score_tests[f]
+    t = tests[f]
+
     display_cards(t[0])
     score_hand(t[0][:-1], t[0][-1], explain=debug, debug=debug)
 
+  # test select_cards()
+  # tests are in the form [str: text to parse, list: cards, int: expected output]
+  a,b,c = Card("a","s"), Card("q","h"), Card("10","d")
+  list_a = [a,b,c]
+
+  tests = [
+    ["as", list_a, {a}],
+    ["as as", list_a, {a}],
+    ["as 10d", list_a, {a,c}],
+    ["ah qs 7h qs 10d", list_a, {c}],
+    ["10d as qh", list_a, {a,b,c}],
+  ]
+
+  fails = []
+
+  for i,t in enumerate(tests):
+    output = select_cards(t[0], t[1])
+    expected = t[-1]
+
+    if output != expected:
+      print(f"test {i+1}: ", end="")
+      print(f"expected {expected} got {output}")
+      fails.append(i)
+      n_fails += 1
+
+  for f in fails:
+    print(f"test {f+1}:")
+    t = tests[f]
+
+    # do some debug printing..
+
   print()
-  print(f"testing complete ({len(fails)} failed)")
+  print(f"testing complete ({n_fails} failed)")
   exit()
