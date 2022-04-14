@@ -49,12 +49,22 @@ class Deck:
 
     return hands
 
+  def __len__(self):
+    return len(self.cards)
+
   def __str__(self):
-    s = str(len(self.cards)) + " cards: "
+    s = ""
     for i in range(len(self.cards)):
-      s += str(self.cards[i])
+      s += repr(self.cards[i])
       if i != len(self.cards) - 1:
-        s += ", "
+        s += ","
+    return s
+
+  def __repr__(self):
+    s = "<Deck object: "
+    s += str(len(self.cards)) + " cards, "
+    s += str(len(self.drawn_cards)) + " drawn"
+    s += ">"
     return s
 
 class Card:
@@ -85,7 +95,19 @@ class Card:
 
     self.value = Card.rank_values[self.rank] if self.rank in Card.rank_values else int(self.rank)
 
-  def __repr__(self):
+  def __eq__(self, other):
+    if type(self) != type(other):
+      return False
+
+    if self.rank == other.rank and self.suit == other.suit:
+      return True
+
+    return False
+
+  def __hash__(self):
+    return hash(self.__repr__())
+
+  def __str__(self):
     s = ""
     if self.rank in Card.rank_words:
       s += Card.rank_words[self.rank].capitalize()
@@ -93,6 +115,11 @@ class Card:
       s += self.rank
     s += " of "
     s += self.suit_words[self.suits.index(self.suit)].capitalize()
+    return s
+
+  def __repr__(self):
+    s = self.rank + self.suit
+    s = s.upper()
     return s
 
 # display text representations of cards onto the terminal.
@@ -112,8 +139,10 @@ def display_cards(cards):
         print("-" * 5, end="")
         print(" ", end="")
       elif i == 1:
+        rank = card.rank.upper()
+
         print("|", end="")
-        print(card.rank + " " * (5 - len(card.rank)), end="")
+        print(rank + " " * (5 - len(rank)), end="")
         print("|", end="")
       elif i == 2:
         suit = card.suit[0].upper()
@@ -123,8 +152,10 @@ def display_cards(cards):
         print("  " + suit + "  ", end="")
         print("|", end="")
       elif i == 3:
+        rank = card.rank.upper()
+
         print("|", end="")
-        print(" " * (5 - len(card.rank)) + card.rank, end="")
+        print(" " * (5 - len(rank)) + rank, end="")
         print("|", end="")
 
       if j != 5:
