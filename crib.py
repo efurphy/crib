@@ -251,7 +251,7 @@ def score_hand(hand, cut, explain=False, debug=False):
   jacks = []
 
   for card in hand:
-    if card.rank == "J":
+    if card.rank == "j":
       jacks.append(card.suit)
 
   for j in jacks:
