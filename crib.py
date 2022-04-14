@@ -8,9 +8,10 @@ class Deck:
   def __init__(self):
     self.cards = []
 
-    # a list of cards that have been drawn, and therefore aren't in
+    # a list of cards that have been drawn, and therefore aren't currently in the deck
     self.drawn_cards = []
 
+    # create 52 unique cards
     for i in range(52):
       rank = Card.ranks[i % len(Card.ranks)]
       suit = Card.suits[i // len(Card.ranks)]
@@ -22,10 +23,10 @@ class Deck:
     self.drawn_cards.append(card)
     return card
 
-  def draw_top_card(self):
+  def draw_top(self):
     return self.draw_card(0)
 
-  def draw_random_card(self):
+  def draw_random(self):
     return self.draw_card(random.randint(0, len(self.cards) - 1))
 
   # put all the drawn cards back onto the top of the deck
@@ -37,14 +38,14 @@ class Deck:
   def shuffle(self):
     random.shuffle(self.cards)
 
-  # deal a number of hands, each with a number of cards.
+  # deal a number of n-card hands.
   # returns a list of lists of cards
   def deal_hands(self, n_hands, n_cards):
     hands = [[] for i in range(n_hands)]
 
     for i in range(n_cards):
       for hand in hands:
-        hand.append(self.draw_top_card())
+        hand.append(self.draw_top())
 
     return hands
 
@@ -94,14 +95,14 @@ class Card:
     s += self.suit_words[self.suits.index(self.suit)].capitalize()
     return s
 
-# display up to 5 text representations of cards onto the terminal.
+# display text representations of cards onto the terminal.
 # takes a card object or a list of card objects.
 def display_cards(cards):
   if type(cards) != list:
     cards = [cards]
 
   if len(cards) == 0:
-    print("No cards.")
+    print("No cards to display.")
     return
 
   for i in range(5):
@@ -204,7 +205,7 @@ def score_hand(hand, cut, explain=False, debug=False):
     ind = Card.ranks.index(card.rank) + 1
     hand_range.append(ind)
 
-  #dprint(hand_range)
+  dprint(hand_range)
 
   run = hand_range.copy()
 
@@ -266,7 +267,7 @@ def score_hand(hand, cut, explain=False, debug=False):
   return score
 
 # select a card or cards from a list of cards. text should be a string in the form "AS 7D" for example, which would try to find the Ace of Spades and 7 of Diamonds in the list of cards.
-# does not support selecting multiple of the same kind of car. say you wanted to select 2 aces of spades ("AS AS") this would only return 1 ace of spades if the card was present in the given list.
+# does not support selecting multiple of the same kind of card. say you wanted to select 2 aces of spades ("AS AS") this would only return 1 ace of spades if the card was present in the given list, even if multiple instances of that card were present in the list.
 # returns a new list of cards from 'cards' that were specified by 'text'
 def select_cards(text, cards):
   text = text.split()
@@ -381,7 +382,7 @@ if __name__ == "__main__":
     crib = p1_crib_cards + p2_crib_cards
 
     # the cut is randomly drawn from the deck
-    cut = deck.draw_random_card()
+    cut = deck.draw_random()
 
     print("cut:")
     display_cards(cut)
