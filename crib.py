@@ -59,7 +59,7 @@ class Deck:
 
 class Card:
   ranks = ["a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k"]
-  rank_words = {"a": "ace", "j": "jack", "j": "queen", "k": "king"}
+  rank_words = {"a": "ace", "j": "jack", "q": "queen", "k": "king"}
   rank_values = {"a": 1, "j": 10, "q": 10, "k": 10}
   suits = ["c", "h", "s", "d"]
   suit_words = ["clubs", "hearts", "spades", "diamonds"]
@@ -266,34 +266,35 @@ def score_hand(hand, cut, explain=False, debug=False):
   # return the final score
   return score
 
-# select a card or cards from a list of cards. text should be a string in the form "AS 7D" for example, which would try to find the Ace of Spades and 7 of Diamonds in the list of cards.
+# parse a string that is supposed to represent a card. looks for form "AS" for "ace of spades", or "10H" for "10 of hearts" for example. if this form is not found, returns ValueError
+# otherwise, returns tuple of the rank and suit
+def parse_card_string(string):
+  pattern = r"^([2-9]|10|[AJQKajqk])([CHSDchsd])$"
+
+  match = re.search(pattern, string)
+
+  if not match:
+    raise ValueError
+
+  return (match.group(1).lower(), match.group(2).lower())
+
+# select card(s) from a list of cards. text should be a string with space-separated values that the parse_card_string function looks for, like "AS 7D" for example, which would try to find the Ace of Spades and 7 of Diamonds in the list of cards.
 # does not support selecting multiple of the same kind of card. say you wanted to select 2 aces of spades ("AS AS") this would only return 1 ace of spades if the card was present in the given list, even if multiple instances of that card were present in the list.
 # returns a new list of cards from 'cards' that were specified by 'text'
 def select_cards(text, cards):
   text = text.split()
 
-  pattern = r"^([2-9]|10|[AJQKajqk])([CHSDchsd])$"
-
-  text_reprs = []
+  text_tuples = []
 
   for s in text:
-    match = re.search(pattern, s)
-
-    if not match:
-      raise ValueError
-
-    text_reprs.append(match.string.upper())
-
-  cards_reprs = []
-
-  for c in cards:
-    cards_reprs.append(c.rank + c.suit[0].upper())
+    text_tuples.append(parse_card_string(s))
 
   result = set()
 
-  for t in text_reprs:
-    if t in cards_reprs:
-      result.add(cards[cards_reprs.index(t)])
+  for t in text_tuples:
+    if c in cards:
+      if t[0] == c.rank and t[1] == c.suit[0]:
+        result.add(c)
 
   return list(result)
 
