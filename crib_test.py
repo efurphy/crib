@@ -102,7 +102,7 @@ def run():
     ],
   ]
 
-  fails = []
+  debug = False
 
   for i,t in enumerate(tests):
     output = score_hand(t[0][:-1], t[0][-1])
@@ -114,14 +114,8 @@ def run():
       fails.append(i)
       n_fails += 1
 
-  debug = False
-
-  for f in fails:
-    print(f"test {f+1}:")
-    t = tests[f]
-
-    display_cards(t[0])
-    score_hand(t[0][:-1], t[0][-1], explain=debug, debug=debug)
+      display_cards(t[0])
+      score_hand(t[0][:-1], t[0][-1], explain=debug, debug=debug)
 
   # test select_cards()
   # tests are in the form [str: text to parse, list: cards, int: expected output]
@@ -136,23 +130,17 @@ def run():
     ["10d as qh", list_a, {a,b,c}],
   ]
 
-  fails = []
-
   for i,t in enumerate(tests):
     output = select_cards(t[0], t[1])
     expected = t[-1]
 
     if output != expected:
+      n_fails += 1
       print(f"test {i+1}: ", end="")
       print(f"expected {expected} got {output}")
-      fails.append(i)
-      n_fails += 1
 
-  for f in fails:
-    print(f"test {f+1}:")
-    t = tests[f]
-
-    # do some debug printing..
+      print(output)
+      print(expected)
 
   print()
   print(f"testing complete ({n_fails} failed)")
