@@ -136,10 +136,22 @@ class Card:
     return s
 
 # display text representations of cards onto the terminal.
-# takes a card object or a list of card objects.
-def display_cards(cards):
-  if type(cards) != list:
-    cards = [cards]
+# can accept any number of arguments, and each argument must be either a Card object or an interable that contains only Card objects. otherwise, an exception is raised.
+def display_cards(*args):
+  cards = []
+
+  for arg in args:
+    if type(arg) == Card:
+      cards.append(arg)
+      continue
+
+    itr = iter(arg) # raises error if a is not iterable
+
+    for i in itr:
+      if type(i) == Card:
+        cards.append(i)
+      else:
+        raise TypeError
 
   if len(cards) == 0:
     print("No cards to display.")
