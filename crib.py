@@ -292,7 +292,7 @@ def select_cards(text, cards):
   result = set()
 
   for t in text_tuples:
-    if c in cards:
+    for c in cards:
       if t[0] == c.rank and t[1] == c.suit[0]:
         result.add(c)
 
