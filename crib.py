@@ -267,43 +267,29 @@ def score_hand(hand, cut, explain=False, debug=False):
     ind = Card.ranks.index(card.rank) + 1
     hand_range.append(ind)
 
-  dprint(hand_range)
+  hand_range.sort()
 
-  run = hand_range.copy()
+  runs = []
 
-  run.sort()
-
-  dprint(run)
-
-  potential_runs = []
-
-  for i in range(3, len(run)+1):
-    combins = list(itertools.combinations(run, i))
+  for i in range(3, len(hand_range)+1):
+    combins = list(itertools.combinations(hand_range, i))
 
     for c in combins:
       s = sorted(list(set(c)))
       newc = list(c)
 
-      dprint(s)
-
       if len(s) > 2 and s == newc:
         if max(s) - min(s) + 1 == len(s):
-          potential_runs.append(set(s))
+          runs.append(set(s))
 
-  dprint(potential_runs)
+  if len(runs) > 0:
+    max_run = max(runs, key=lambda x: len(x))
 
-  if len(potential_runs) > 0:
-    max_len = max(potential_runs, key=lambda x: len(x))
+    for i,r in enumerate(runs):
+      if len(r) < len(max_run) and r.issubset(max_run):
+        runs[i] = set()
 
-    dprint(max_len)
-
-    for i,r in enumerate(potential_runs):
-      if len(r) < len(max_len) and r.issubset(max_len):
-        potential_runs[i] = set()
-
-    dprint(potential_runs)
-
-  for r in potential_runs:
+  for r in runs:
     score += len(r)
 
     if explain:
@@ -390,8 +376,7 @@ if __name__ == "__main__":
   max_score = 100
 
   # start two players off at scores of 0
-  p1_score = 0
-  p2_score = 0
+  p1_score = p2_score = 0
 
   # the first crib starts with a randomly selected player 
   crib_turn = random.randint(1,2)
