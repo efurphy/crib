@@ -328,7 +328,7 @@ def score_hand(hand, cut, explain=False, debug=False):
   # return the final score
   return score
 
-# parse a string that is supposed to represent card(s). looks for strings like "AS" for "ace of spades", or "10H" for "10 of hearts" for example, and finds 1 or more of these matches, separated by non-word characters. like "as 10h" or "as,10d" for example. if no cards found, returns empty list.
+# parse a string that is supposed to represent card(s). looks for strings like "AS" for "ace of spades", or "10H" for "10 of hearts" for example, and finds 1 or more of these matches, separated by non-word characters. like "as 10h" or "aS,10d" for example. if no cards found, returns empty list.
 # otherwise, returns a list of tuples in the form [(rank, suit), ...]
 def parse_card_string(string):
   pattern = r"(?:\b([2-9]|10|[AJQKajqk])([CHSDchsd])\b)+"
@@ -345,7 +345,7 @@ def select_cards(text, cards):
 
   for t in text_tuples:
     for c in cards:
-      if t[0] == c.rank and t[1] == c.suit[0]:
+      if t[0].lower() == c.rank and t[1].lower() == c.suit[0]:
         result.add(c)
 
   return result
