@@ -6,7 +6,7 @@ def run():
   n_fails = 0
 
   # test score_hand()
-  # each test is a list in the form [list: hand, int: expected score]
+  # tests are in the form [list: hand, int: expected score]
   tests = [
     [
       [Card("A", "spades"), Card("2", "hearts"), Card("2", "clubs"), Card("3", "hearts"), Card("8", "spades")],
@@ -119,15 +119,18 @@ def run():
 
   # test select_cards()
   # tests are in the form [str: text to parse, list: cards, int: expected output]
-  a,b,c = Card("a","s"), Card("q","h"), Card("10","d")
+  a,b,c,d,e = Card("a","s"), Card("q","h"), Card("10","d"), Card("9H"), Card("queen","HEArts")
   list_a = [a,b,c]
+  list_b = [a,b,c,d,e]
 
   tests = [
     ["as", list_a, {a}],
     ["as as", list_a, {a}],
     ["as 10d", list_a, {a,c}],
-    ["ah qs 7h qs 10d", list_a, {c}],
-    ["10d as qh", list_a, {a,b,c}],
+    ["ah,qs 7h,qs-10d", list_a, {c}],
+    ["10d as----qh", list_a, {a,b,c}],
+    ["", list_a, set()],
+    ["qh-qh qh.qh,qh 7c-9H", list_b, {e,d}],
   ]
 
   for i,t in enumerate(tests):
