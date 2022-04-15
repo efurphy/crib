@@ -351,7 +351,7 @@ def user_select_cards(prompt, n_cards, cards):
       break
     except:
       # print an error if an exception was found, then continue the while loop
-      print("Invalid input")
+      print(f"Invalid input: Please select {n_cards} valid cards.")
 
   return selected
 
@@ -399,9 +399,6 @@ if __name__ == "__main__":
     # print each users hand and get their input to select the cards they want to put in the crib, then remove the selected cards from each players hands and add those cards to the crib.
     crib = []
 
-    n = 2
-    prompt = f"select {n} cards: "
-
     for i in range(2):
       if i == 0:
         hand = p1_hand
@@ -410,7 +407,7 @@ if __name__ == "__main__":
 
       print(f"player {i+1} hand:")
       display_cards(hand)
-      crib_cards = user_select_cards(prompt, n, hand)
+      crib_cards = user_select_cards("select 2 cards: ", 2, hand)
       print()
 
       for c in crib_cards:
@@ -425,38 +422,118 @@ if __name__ == "__main__":
 
     # start pegging phase:
 
+    p1_play_hand = p1_hand.copy()
+    p2_play_hand = p2_hand.copy()
+
     # whoever doesnt have the crib this turn plays the first card.
     turn = 1 if crib_turn == 2 else 2
 
     # list of cards that have been played
     played = []
+    played_values = []
 
-    n = 1
-    prompt = "play a card: "
+    while True:
+      if turn == 1 and len(p1_play_hand) == 0:
+        if len(p2_play_hand) != 0:
+          turn = 2
+          continue
+        break
+      elif turn == 2 and len(p2_play_hand) == 0:
+        if len(p1_play_hand) != 0:
+          turn = 1
+          continue
+        break
 
-    p1_play_hand = p1_hand.copy()
-    p2_play_hand = p2_hand.copy()
+      sum_of_played = sum(played_values)
 
-    # while at least one player still has cards left..
-    while len(p1_play_hand) > 0 or len(p2_play_hand) > 0:
+      next_turn = False
+      for c in hand:
+        if sum_of_played + c.value <= 31:
+          continue
+
+        turn = 1 if turn == 2 else 2
+
+        print(f"Last card: +1 for player {turn}")
+        print()
+
+        if turn == 1:
+          p1_score += 1
+        elif turn == 2:
+          p2_score += 1
+
+        played.clear()
+        played_values.clear()
+
+        next_turn = True
+        break
+
+      if next_turn:
+        turn = 1 if turn == 2 else 2
+        continue
+
       print(f"player {turn}s turn:")
 
       if turn == 1:
         hand = p1_play_hand
-        turn = 2
       elif turn == 2:
         hand = p2_play_hand
-        turn = 1
 
       display_cards(hand)
 
-      play = user_select_cards(prompt, n, hand)
+      while True:
+        try:
+          play = user_select_cards("play a card: ", 1, hand)
 
-      for c in play:
-        hand.remove(c)
-        played.append(c)
+          for c in play:
+            if sum_of_played + c.value > 31:
+              raise ValueError
+
+          break
+        except:
+          print("Invalid input: Total would exceed 31.")
 
       print()
+
+      for c in play:
+        if len(played) > 0 and c.rank == played[-1].rank:
+          print(f"Pair: +2 for player {turn}.")
+          print()
+
+          if turn == 1:
+              p1_score += 2
+          elif turn == 2:
+              p2_score += 2
+
+        hand.remove(c)
+        played.append(c)
+        played_values.append(c.value)
+
+      sum_of_played = sum(played_values)
+
+      print("Total:", sum_of_played)
+      print()
+
+      if sum_of_played == 15:
+        print(f"15: +2 for player {turn}.")
+        print()
+
+        if turn == 1:
+            p1_score += 2
+        elif turn == 2:
+            p2_score += 2
+      elif sum_of_played == 31:
+        print(f"31: +2 for player {turn}.")
+        print()
+
+        if turn == 1:
+            p1_score += 2
+        elif turn == 2:
+            p2_score += 2
+
+        played.clear()
+        played_values.clear()
+
+      turn = 1 if turn == 2 else 2
 
     # score each hand and the crib, displaying all cards and their scores
     p1_hand_score = score_hand(p1_hand, cut)
@@ -483,7 +560,6 @@ if __name__ == "__main__":
     # add calculated scores to each player's scores
     p1_score += p1_hand_score
     p2_score += p2_hand_score
-
     if crib_turn == 1:
       p1_score += crib_score
     else:
