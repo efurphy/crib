@@ -432,6 +432,7 @@ if __name__ == "__main__":
     played = []
     played_values = []
 
+    # pegging phase loop: VERY BUGGY - NEEDS REWORKING!!!
     while True:
       if turn == 1 and len(p1_play_hand) == 0:
         if len(p2_play_hand) != 0:
