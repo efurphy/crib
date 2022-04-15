@@ -131,6 +131,7 @@ def run():
     ["10d as----qh", list_a, {a,b,c}],
     ["", list_a, set()],
     ["qh-qh qh.qh,qh 7c-9H", list_b, {e,d}],
+    ["As", [a], {a}],
   ]
 
   for i,t in enumerate(tests):
@@ -142,8 +143,7 @@ def run():
       print(f"test {i+1}: ", end="")
       print(f"expected {expected} got {output}")
 
-      print(output)
-      print(expected)
+      # do some debug printing..
 
   print()
   print(f"testing complete ({n_fails} failed)")
