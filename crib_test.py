@@ -109,10 +109,9 @@ def run():
     expected = t[-1]
 
     if output != expected:
+      n_fails += 1
       print(f"test {i+1}: ", end="")
       print(f"expected {expected} got {output}")
-      fails.append(i)
-      n_fails += 1
 
       display_cards(t[0])
       score_hand(t[0][:-1], t[0][-1], explain=debug, debug=debug)
