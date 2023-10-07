@@ -1,2 +1,2 @@
-just a command line game of crib.
-work in progress.
+just a command line game of crib
+wip
